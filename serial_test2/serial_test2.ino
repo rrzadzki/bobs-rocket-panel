@@ -1,3 +1,6 @@
+const bool TYPE_BOOLEAN = false;
+const bool TYPE_SCALAR = true;
+
 byte state[2];
 
 /* 64 boolean switches MAX */
@@ -38,16 +41,15 @@ void loop() {
     if(millis() - debounceTimes[s] > debounceDelay) {
       if(states[s] != b) {
         // Send this event and then set states[s] to b
-        unsigned char packet = 0;
-        bitWrite(packet,0,0);     // unnecessary but I want to remember: 0 for boolean, 1 for scalar
-        bitWrite(packet,1,s<<1);  // shift the ID into bits 1-6
-        bitWrite(packet,7,states[s]); // value goes in the final bit
-
+        unsigned char packet = s;
+        bitWrite(packet,7,TYPE_BOOLEAN); // MSB for message type
+        bitWrite(packet,6,b);            // Value in next bit
+        Serial.write(packet);
+        states[s] = b;
         /*
         Serial.write(s);
         Serial.write(b);
         Serial.write(0xff);
-        states[s] = b;
         */
       }
     }

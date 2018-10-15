@@ -25,6 +25,10 @@ serial_state = []
 ser.reset_input_buffer()
 
 while reading:
+	b = ser.read(1)
+	if b is not None:
+		print(b.hex())
+	'''
 	b = ser.read_until(b'\xff', 32)
 	#print(b.hex())
 	if len(b) > 0:
@@ -34,6 +38,7 @@ while reading:
 		if switch in actions:
 			if pos in actions[switch]:
 				actions[switch][pos]()
+	'''
 	
 ser.close()
 	

@@ -38,16 +38,26 @@ int main(int argc, char** argv) {
     
     while(arduino.isConnected()){
         int read_result = arduino.readSerialPort(incomingData, MAX_DATA_LENGTH);
-        //puts(incomingData);
-        
-	if(read_result > 2) {
-	    for(int i=2; i<read_result; i++) {
-			if((int)(incomingData[i])==255){
-				cout << "Switch " << (int)incomingData[i-2] << ": " << (int)incomingData[i-1] << endl;
+		if(read_result>0){
+			for(int i=0; i<read_result; i++){
+				cout << std::hex << (unsigned int)incomingData[i] << endl;
+				int msg_type = (incomingData[i] & 0b10000000) >> 7;
+				int state    = (incomingData[i] & 0b01000000) >> 6;
+				int  id      = (incomingData[i] & 0b00111111);
+				cout << "Type: " << (int) msg_type << " State: " << (int) state << " ID: " << id << endl;
 			}
-	    }
-	}
-        Sleep(100);
+		}
+        //puts(incomingData);
+        /*
+		if(read_result > 2) {
+			for(int i=2; i<read_result; i++) {
+				if((int)(incomingData[i])==255){
+					cout << "Switch " << (int)incomingData[i-2] << ": " << (int)incomingData[i-1] << endl;
+				}
+			}
+		}
+		*/
+		Sleep(100);
     }
     return 0;
 }
