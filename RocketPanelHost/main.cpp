@@ -26,7 +26,12 @@ char *port_name = "\\\\.\\COM4";
 
 byte incomingData[MAX_DATA_LENGTH];
 
+const bool DEBUG = false;
+
 using namespace std;
+
+unsigned int last_byte;
+bool holding_byte = false;
 
 /*
  * 
@@ -40,11 +45,32 @@ int main(int argc, char** argv) {
         int read_result = arduino.readSerialPort(incomingData, MAX_DATA_LENGTH);
 		if(read_result>0){
 			for(int i=0; i<read_result; i++){
-				cout << std::hex << (unsigned int)incomingData[i] << endl;
+				if(DEBUG) cout << std::hex << (unsigned int)incomingData[i] << endl;
 				int msg_type = (incomingData[i] & 0b10000000) >> 7;
 				int state    = (incomingData[i] & 0b01000000) >> 6;
 				int  id      = (incomingData[i] & 0b00111111);
-				cout << "Type: " << (int) msg_type << " State: " << (int) state << " ID: " << id << endl;
+				if(holding_byte) { // ugly; checking if sequential reads will do it
+					holding_byte = false;
+					int id = incomingData[i];
+					cout << "Value of pot " << id << " is " << last_byte << endl;
+					continue;
+				}
+				if(msg_type == 1) {
+					// This byte is the value for the switch identified in the following byte.
+					if(i<read_result-1) {
+						state = (incomingData[i] & 0b01111111); // Drop the MSB type indicator
+						int id = incomingData[++i];
+						cout << "Value of pot " << id << " is " << state << endl;
+					} else {
+						// Error
+						// cout << "Packet with MSB 1 is last in read" << endl;
+						last_byte = incomingData[i] & 0b01111111;
+						holding_byte = true;
+					}
+				} else {
+					// This is the value of a switch whose ID is given.
+					cout << "Type: " << (int) msg_type << " State: " << (int) state << " ID: " << id << endl;
+				}
 			}
 		}
         //puts(incomingData);

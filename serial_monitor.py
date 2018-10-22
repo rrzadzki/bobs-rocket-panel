@@ -24,10 +24,12 @@ serial_state = []
 
 ser.reset_input_buffer()
 
+count = 0;
 while reading:
 	b = ser.read(1)
 	if b is not None:
-		print(b.hex())
+		count = count + 1
+		print("{} {}".format(count,b.hex()))
 	'''
 	b = ser.read_until(b'\xff', 32)
 	#print(b.hex())
