@@ -4,6 +4,8 @@ const int pisoLatchPin = 8;
 const int pisoDataPin  = 9;
 const int pisoClockPin = 7;
 
+const int debugModePin = 2;
+
 const int pisoChipCount = 1;
 
 byte pisoState[pisoChipCount]; // TODO: Revise this math, it's wasting space.
@@ -16,6 +18,10 @@ bool DEBUG_MODE = false; // TODO: allow this to be set on power-up.
 LiquidCrystal lcd(10,11,3,4,5,6);
 
 void setup() {
+  pinMode(debugModePin, INPUT_PULLUP);
+  if(digitalRead(debugModePin) == LOW) {
+    DEBUG_MODE = true;
+  }
   // put your setup code here, to run once:
   lcd.begin(16,2);
   lcd.print("Starting up...");
@@ -98,13 +104,12 @@ void loop() {
   }
   if(DEBUG_MODE) Serial.println("---End of state---");
   
-  // DEBUG: Write pisoState to the LCD.
+  if(DEBUG_MODE) {
+    lcd.setCursor(0,1);
+    lcd.print(counter++);
+  }
   
-  lcd.setCursor(0,1);
-  lcd.print(counter++);
-  
-  
-  //delay(1000);
+  if(DEBUG_MODE) delay(1000);
 }
 
 void shiftIn() {

@@ -1,15 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   SerialPort.cpp
- * Author: Bob
- * 
- * Created on October 7, 2018, 10:16 PM
- */
+/* TODO: Credit where credit is due. I got this from a SO post or something. */
 
 #include "SerialPort.h"
 

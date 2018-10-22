@@ -1,14 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   main.cpp
- * Author: Bob
+ * Author: Bob Rzadzki
  *
  * Created on October 7, 2018, 10:16 PM
+ * 
+ * Receives packets via serial from an Arduino running RocketPanelFirmware.
+ * 
+ * TODO: Send those events to Telemachus via websocket. 
+ * TODO: Receive events back via websocket.
+ * TODO: Send relevant event data to panel.
  */
 
 #include <cstdlib>
@@ -22,10 +22,12 @@
 using std::cout;
 using std::endl;
 
+// TODO: Get port name on command line.
 char *port_name = "\\\\.\\COM4";
 
 byte incomingData[MAX_DATA_LENGTH];
 
+// TODO: Get debug state from command line.
 const bool DEBUG = false;
 
 using namespace std;
