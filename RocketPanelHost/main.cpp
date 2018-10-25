@@ -85,6 +85,10 @@ int main(int argc, char** argv) {
 			}
 		}
 		*/
+		if(GetKeyState('A') & 0x8000/*check if high-order bit is set (1 << 15)*/)
+		{
+			cout << "A pressed" << endl;
+		}
 		Sleep(100);
     }
     return 0;

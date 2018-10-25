@@ -13,6 +13,9 @@ byte pisoStateTemp[pisoChipCount];
 
 int counter = 0;
 
+byte heldByte = 0;
+boolean holdingByte = false;
+
 bool DEBUG_MODE = false; // TODO: allow this to be set on power-up.
 
 LiquidCrystal lcd(10,11,3,4,5,6);
@@ -103,6 +106,51 @@ void loop() {
     if(DEBUG_MODE) Serial.println("--End of byte--");
   }
   if(DEBUG_MODE) Serial.println("---End of state---");
+
+  /* Receive any bytes from serial */
+  while(Serial.available() > 0) {
+    byte b = Serial.read();
+    
+    // Check if we're holding over a byte from the last loop.
+    if(holdingByte) {
+      holdingByte = false;
+      if(b & 0b10000000 == 0) {
+        byte id    = heldByte & 0b00111111;
+        byte value =        b & 0b01111111;
+        setGauge(id,value);
+      } else {
+        // TODO: this is an error, some kind of malformed message
+      }
+    }
+    
+    // Check if this byte "applies to next"
+    if((b & 0b10000000) == 0) {
+      // This is a standalone message.
+      // Bit 2^6 is the new state.
+      // Bits 2^5 through 2^0 are the gauge ID.
+      boolean state = b & 0b01000000;
+      byte id       = b & 0b00111111;
+      setIndicator(id,state);
+    } else {
+      // This is a routing byte, indicating where we'll assign the next byte's value.
+      // If there are more bytes available, grab one.
+      if(Serial.available() > 0) {
+        byte c = Serial.read();
+        if(c & 0b10000000 == 0) {
+          byte id    = b & 0b00111111;
+          byte value = c & 0b01111111;
+          setGauge(id,value);
+        } else {
+          // TODO: this is an error, some kind of malformed message
+        }
+      } else {
+        // Since there are no more bytes available right now, store this
+        // byte and set the flag indicating we'll get to it next time.
+        heldByte = b;
+        holdingByte = true;
+      }
+    }
+  }
   
   if(DEBUG_MODE) {
     lcd.setCursor(0,1);
@@ -151,7 +199,7 @@ void shiftIn() {
   */
 }
 
-byte switchEvent(int id, byte state) {
+byte switchEvent(int id, boolean state) {
   // TODO: Document this function
   byte packet = id;
   bitWrite(packet,7,0); // MSB is for "applies to next ID"; bools do not.
@@ -159,4 +207,11 @@ byte switchEvent(int id, byte state) {
   return packet;
 }
 
+void setIndicator(int id, boolean state) {
+  // TODO
+}
+
+void setGauge(int id, int value) {
+  // TODO
+}
 
