@@ -2,7 +2,7 @@
 
 #include "SerialPort.h"
 
-SerialPort::SerialPort(char *portName) {
+SerialPort::SerialPort(char const *portName) {
     this->connected = false;
     
     this->handler = CreateFileA(static_cast<LPCSTR>(portName),

@@ -28,7 +28,7 @@ private:
     COMSTAT status;
     DWORD errors;
 public:
-    SerialPort(char *portName);
+    SerialPort(char const *portName);
     //SerialPort(const SerialPort& orig);
     virtual ~SerialPort();
     

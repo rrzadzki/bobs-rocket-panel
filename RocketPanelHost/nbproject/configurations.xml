@@ -37,6 +37,9 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <ccTool>
+          <commandLine>--std=c++11 -pthread</commandLine>
+        </ccTool>
       </compileType>
       <item path="C:/Users/Bob/Dev/bobs-rocket-panel/RocketPanelHost/SerialPort.cpp"
             ex="false"
