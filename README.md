@@ -1,4 +1,4 @@
-# bobs-rocket-panel
+# Bob's Rocket Panel
 A hardware control panel for Kerbal Space Program and the software to support it. This is not a new concept, but if I wanted to play something off the shelf, I'd be playing a flight simulator. This is Kerbal, and we build crazy things for it.
 
 ## Goals
