@@ -12,7 +12,13 @@ bool blinkState = false;
 long blinkStartTime;
 int blinkInterval = 1000;
 
+int flashInterval = 300;
+long lastFlashTime;
+bool flashState = false;
+
 byte leds = 0b11111111;
+
+int counter = 0;
 
 int ledPin = 16;
 
@@ -23,7 +29,6 @@ void setup() {
   blink(1000);
   
   Serial.begin(115200);
-  while (!mySimpit.init());
 
   /* Test the SIPO */
   pinMode(latchPin, OUTPUT);
@@ -31,33 +36,10 @@ void setup() {
   pinMode(clockPin, OUTPUT);
   lastShiftTime = millis();
   updateShiftRegister();
-  /* end of SIPO test */
 
-  mySimpit.inboundHandler(callbackHandler);
-
-  mySimpit.registerChannel(SF_MESSAGE);
-
-  startMillis = millis();
+  startMillis = lastFlashTime = millis();
 }
 
-/**
- * Handle messages from KSP (invoked by KerbalSimPit)
- */
-void callbackHandler(byte messageType, byte message[], byte messageSize) {
-  blink(1000);
-  switch(messageType) {
-    case SCENE_CHANGE_MESSAGE:
-      //blink();
-      break;
-    case SF_MESSAGE:
-      resourceMessage rm = parseResource(message);
-      float percent = rm.available / rm.total;
-      updateGauge(percent);
-      break;
-    default:
-      // blink the trouble light or something
-  }
-}
 
 /**
  * Temporary: blink a status light for _interval_ millis
@@ -69,24 +51,8 @@ void blink(int interval) {
   blinkInterval = interval;
 }
 
-
-/**
- * Old-fashioned method to update 8 LEDs wired to the first shift register
- */
-void updateGauge(float percent) {
-  leds = 0;
-  if(percent > 0) {
-    for(int i=0; i<8; i++) {
-      float pos = (float)i / 7.0;
-      if(pos <= percent) bitSet(leds,i);
-    }
-  }
-  updateShiftRegister();
-}
-
 /**
  * Shunt byte _leds_ into the register
- * 
  */
 void updateShiftRegister() {
   digitalWrite(latchPin, LOW);
@@ -96,15 +62,22 @@ void updateShiftRegister() {
   digitalWrite(latchPin, HIGH);
 }
 
-/**
- * Update a 12-segment bar graph stored in the _gaugeBytes_ array
- */
-
 void loop() {
-  mySimpit.update();
-  
   if(blinkState && millis() >= blinkStartTime + blinkInterval) {
     blinkState = false;
     digitalWrite(ledPin,LOW);
+  }
+
+  if(millis() > flashInterval + lastFlashTime) {
+    lastFlashTime = millis();
+
+    counter = (counter + 1) % 12;
+
+    leds = (1 << 7 - counter / 4) | (1 << 4 - counter % 4);
+    //(0b1 << counter % 4) | (0b1 << counter / 4);
+
+    Serial.println(leds, BIN);
+    
+    updateShiftRegister();
   }
 }
