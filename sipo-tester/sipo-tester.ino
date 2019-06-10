@@ -16,6 +16,7 @@ int flashInterval = 300;
 long lastFlashTime;
 bool flashState = false;
 
+// todo: Implement leds[], maybe change to gauges[] or outpins[] or something
 byte leds = 0b11111111;
 
 int counter = 0;
@@ -23,6 +24,15 @@ int counter = 0;
 int ledPin = 16;
 
 long startMillis;
+
+/* Gauge cycling globals
+ *  Each gauge is divided into three segments. The entire bank will be
+ *  cycled at once, at a rate defined here.
+ */
+int gauge_hz = 20;
+long gauge_cycle_ms, last_gauge_cycle_time;
+int gauge_segment_active = 0; // will be 0, 1, or 2
+const GAUGE_SEGMENTS = 3;
 
 void setup() {
   pinMode(ledPin, OUTPUT);
@@ -37,7 +47,12 @@ void setup() {
   lastShiftTime = millis();
   updateShiftRegister();
 
-  startMillis = lastFlashTime = millis();
+  gauge_cycle_ms = 1000 / gauge_hz;
+
+  startMillis = 
+  lastFlashTime = 
+  last_gauge_cycle_time = millis();
+
 }
 
 
@@ -63,6 +78,13 @@ void updateShiftRegister() {
 }
 
 void loop() {
+  long ms = millis();
+  // cycle the gauge bank
+  if(ms > last_gauge_cycle_time + gauge_cycle_ms) {
+    last_gauge_cycle_time = ms;
+    gauge_segment_active = (gauge_segment_active + 1) % GAUGE_SEGMENTS;
+  }
+  
   if(blinkState && millis() >= blinkStartTime + blinkInterval) {
     blinkState = false;
     digitalWrite(ledPin,LOW);
