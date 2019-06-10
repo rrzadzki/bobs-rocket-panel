@@ -33,6 +33,9 @@ int gauge_hz = 20;
 long gauge_cycle_ms, last_gauge_cycle_time;
 int gauge_segment_active = 0; // will be 0, 1, or 2
 const GAUGE_SEGMENTS = 3;
+const GAUGE_COUNT = 1;
+
+byte gauge_bytes[][];
 
 void setup() {
   pinMode(ledPin, OUTPUT);
@@ -46,6 +49,8 @@ void setup() {
   pinMode(clockPin, OUTPUT);
   lastShiftTime = millis();
   updateShiftRegister();
+
+  gauge_bytes[][] = new byte[GAUGE_SEGMENTS][GAUGE_COUNT];
 
   gauge_cycle_ms = 1000 / gauge_hz;
 
@@ -82,7 +87,19 @@ void loop() {
   // cycle the gauge bank
   if(ms > last_gauge_cycle_time + gauge_cycle_ms) {
     last_gauge_cycle_time = ms;
+
+    // Set the current segment pin low
+    
     gauge_segment_active = (gauge_segment_active + 1) % GAUGE_SEGMENTS;
+
+    // Set the current segment pin high
+
+    // Update the shiftOut register with this segment's values
+    digitalWrite(latchPin, LOW);
+    for(int g=0; g<GAUGE_COUNT; g++) {
+      shiftOut(dataPin, clockPin, LSBFIRST, gauge_bytes[gauge_segment_active][g]);
+    }
+    digitalWrite(latchPin, HIGH);
   }
   
   if(blinkState && millis() >= blinkStartTime + blinkInterval) {
