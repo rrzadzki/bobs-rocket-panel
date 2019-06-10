@@ -16,9 +16,9 @@ A hardware control panel for Kerbal Space Program built on the Kerbal SimPit mod
 
 My original approach was to use Telemachus as the interface into Kerbal, with a driver program subscribing to Telemachus websockets and passing information back and forth between there and USB with the controller. After some dozen hours or so working that out, I made a discovery;
 
-***Do you there's a Kerbal Controllers subreddit?***
+***Do you know there's a Kerbal Controllers subreddit?***
 
-It's true. And for some reason I was at this a while before I discovered it while trying to figure out if there was a Telemachus fork that was still alive. /r/KerbalControllers led me to the KerbalSimPit mod (via their extremely helpful [Software Comparison Thread](https://www.reddit.com/r/KerbalControllers/comments/ajavos/software_comparison_thread/)) which pairs with an Arduino library to integrate the game and hardware controllers.
+It's true. I was at this a while before I discovered it, actually while trying to figure out if there was a Telemachus fork still alive. /r/KerbalControllers led me to the KerbalSimPit mod (via their extremely helpful [Software Comparison Thread](https://www.reddit.com/r/KerbalControllers/comments/ajavos/software_comparison_thread/)) which pairs with an Arduino library to integrate the game and hardware controllers.
 
 As much as I enjoyed learning threading, serial communications, and websockets in C++, I've now opted to go with KerbalSimPit as the basis of my software just to give this project a hope of being completed before I get my degree.
 
