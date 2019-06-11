@@ -2,8 +2,8 @@
 
 KerbalSimpit mySimpit(Serial);
 
-int latchPin = 7,
-    clockPin = 15,
+int latchPin = 13,
+    clockPin = 12,
     dataPin  = 11;
 
 long lastShiftTime;
@@ -29,13 +29,14 @@ long startMillis;
  *  Each gauge is divided into three segments. The entire bank will be
  *  cycled at once, at a rate defined here.
  */
-int gauge_hz = 20;
+int gauge_hz = 250;
 long gauge_cycle_ms, last_gauge_cycle_time;
 int gauge_segment_active = 0; // will be 0, 1, or 2
-const GAUGE_SEGMENTS = 3;
-const GAUGE_COUNT = 1;
 
-byte gauge_bytes[][];
+#define GAUGE_COUNT    1
+#define GAUGE_SEGMENTS 3
+const int GAUGE_SEGMENT_PINS[] = {8,9,10};
+byte gauge_bytes[GAUGE_SEGMENTS][GAUGE_COUNT];
 
 void setup() {
   pinMode(ledPin, OUTPUT);
@@ -50,7 +51,20 @@ void setup() {
   lastShiftTime = millis();
   updateShiftRegister();
 
-  gauge_bytes[][] = new byte[GAUGE_SEGMENTS][GAUGE_COUNT];
+  for(int p=0; p<GAUGE_SEGMENTS; p++) {
+    pinMode(GAUGE_SEGMENT_PINS[p],OUTPUT);
+    digitalWrite(GAUGE_SEGMENT_PINS[p],HIGH);
+  }
+
+  gauge_bytes[0][0] = 0x0f;
+  gauge_bytes[1][0] = 0xff;
+  gauge_bytes[2][0] = 0xf0;
+
+  digitalWrite(latchPin, LOW);
+    for(int g=0; g<GAUGE_COUNT; g++) {
+      shiftOut(dataPin, clockPin, LSBFIRST, gauge_bytes[gauge_segment_active][g]);
+    }
+    digitalWrite(latchPin, HIGH);
 
   gauge_cycle_ms = 1000 / gauge_hz;
 
@@ -83,17 +97,21 @@ void updateShiftRegister() {
 }
 
 void loop() {
+  
   long ms = millis();
   // cycle the gauge bank
   if(ms > last_gauge_cycle_time + gauge_cycle_ms) {
     last_gauge_cycle_time = ms;
 
     // Set the current segment pin low
-    
+    digitalWrite(GAUGE_SEGMENT_PINS[gauge_segment_active],LOW);
+
+    // Update which segment we're lighting
     gauge_segment_active = (gauge_segment_active + 1) % GAUGE_SEGMENTS;
 
     // Set the current segment pin high
-
+    digitalWrite(GAUGE_SEGMENT_PINS[gauge_segment_active],HIGH);
+    
     // Update the shiftOut register with this segment's values
     digitalWrite(latchPin, LOW);
     for(int g=0; g<GAUGE_COUNT; g++) {
@@ -107,6 +125,7 @@ void loop() {
     digitalWrite(ledPin,LOW);
   }
 
+  /*
   if(millis() > flashInterval + lastFlashTime) {
     lastFlashTime = millis();
 
@@ -119,4 +138,5 @@ void loop() {
     
     updateShiftRegister();
   }
+  */
 }
